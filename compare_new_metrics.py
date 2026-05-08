@@ -14,36 +14,34 @@ import matplotlib.lines as mlines
 RUNS = [
     {
         'label':     'add mod 113 (grokks ~ep 16800)',
-        'path':      'results/add_new/metrics.csv',
+        'path':      'results/add_wfourier/metrics.csv',
         'color':     '#2166ac',
         'linestyle': '-',
         'grokked':   True,
     },
     {
         'label':     'x3xy2y mod 113 (no grokking)',
-        'path':      'results/x3_new/metrics.csv',
+        'path':      'results/x3_wfourier/metrics.csv',
         'color':     '#d6604d',
         'linestyle': '--',
         'grokked':   False,
     },
 ]
 
-# (panel title, csv column, y-scale, description for annotation)
+# (panel title, csv column, y-scale)
 PANELS = [
     ('Test Accuracy',
-     'test_acc',                          None),
-    ('Test Confidence\n(mean top1-top2 logit gap, test set)',
-     'test_confidence',                   None),
+     'test_acc',                                        None),
+    ('Weight Fourier Frac (first input layer, mean of x/y halves)\n*** earliest signal: diverges by epoch 500 ***',
+     'weight_fourier_frac_mean_layers_0_weight',        None),
     ('Activation Fourier Frac Explained\n(first hidden layer)',
-     'fourier_mean_frac_explained_hidden_0', None),
-    ('Output Logit Fourier Frac Explained\n(logit grid over all p² inputs)',
-     'logit_fourier_frac',                None),
+     'fourier_mean_frac_explained_hidden_0',            None),
+    ('Output Logit Fourier Frac\n(logit grid over all p^2 inputs)',
+     'logit_fourier_frac',                              None),
     ('Effective Rank\n(first weight matrix)',
-     'eff_rank_layers_0_weight',          None),
+     'eff_rank_layers_0_weight',                        None),
     ('Group Associativity Fraction\n(fraction of (a,b,c) triples satisfying T[T[a,b],c]=T[a,T[b,c]])',
-     'group_assoc_frac',                  None),
-    ('Activation Intrinsic Dimensionality\n(PCA dims explaining 90% variance, first hidden layer)',
-     'idim_hidden_0',                     None),
+     'group_assoc_frac',                                None),
 ]
 
 def load(run):

@@ -340,6 +340,47 @@ def compute_fourier_metrics(model, all_X, p: int) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Weight matrix Fourier structure
+# ---------------------------------------------------------------------------
+
+def compute_weight_fourier_metrics(model, p: int) -> dict:
+    """
+    For the input weight matrix W [H, 2p], project each row's x-half and y-half
+    onto the 1D Fourier basis and measure how much power concentrates at a single
+    frequency. High frac = weight rows are becoming Fourier-mode-aligned.
+    Only applies to layers whose weight has exactly 2p input features.
+    """
+    basis = make_fourier_basis(p)  # [p, p], CPU
+
+    metrics = {}
+    for name, param in model.named_parameters():
+        W = param.detach().cpu().float()
+        if W.dim() != 2 or W.shape[1] != 2 * p:
+            continue
+
+        safe = name.replace('.', '_')
+        halves = [('x', W[:, :p]), ('y', W[:, p:])]
+        half_fracs = []
+
+        for half_name, W_half in halves:
+            coeffs     = W_half @ basis.T          # [H, p]
+            power      = coeffs.pow(2)             # [H, p]
+            # Pair cos + sin for each non-DC frequency k=1,2,...
+            cos_p      = power[:, 1::2]            # [H, n_cos]
+            sin_p      = power[:, 2::2]            # [H, n_sin]
+            n          = min(cos_p.shape[1], sin_p.shape[1])
+            freq_power = cos_p[:, :n] + sin_p[:, :n]          # [H, n_freqs]
+            total      = power.sum(dim=1, keepdim=True).clamp(min=1e-12)
+            best_frac  = (freq_power / total).max(dim=1).values.mean().item()
+            metrics[f'weight_fourier_frac_{half_name}_{safe}'] = best_frac
+            half_fracs.append(best_frac)
+
+        metrics[f'weight_fourier_frac_mean_{safe}'] = sum(half_fracs) / len(half_fracs)
+
+    return metrics
+
+
+# ---------------------------------------------------------------------------
 # Activation intrinsic dimensionality
 # ---------------------------------------------------------------------------
 
@@ -502,5 +543,6 @@ def compute_all_metrics(model, train_X, train_y, test_X, test_y,
         metrics.update(compute_logit_fourier_metrics(model, all_X, p))
         metrics.update(compute_activation_idim(model, all_X))
         metrics.update(compute_group_metrics(model, all_X, p))
+        metrics.update(compute_weight_fourier_metrics(model, p))
 
     return metrics, curr_acts
