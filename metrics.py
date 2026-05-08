@@ -167,7 +167,11 @@ def compute_representation_metrics(model, train_X, train_y,
     test_probs = torch.softmax(test_logits, dim=1)
     test_entropy = -(test_probs * (test_probs + 1e-12).log()).sum(dim=1).mean().item()
 
-    metrics = {'margin': margin, 'test_entropy': test_entropy}
+    # Mean top1-top2 logit gap on test set (may rise before test_acc does)
+    top2_test = test_logits.topk(2, dim=1).values
+    test_confidence = (top2_test[:, 0] - top2_test[:, 1]).mean().item()
+
+    metrics = {'margin': margin, 'test_entropy': test_entropy, 'test_confidence': test_confidence}
 
     # CKA change: similarity between current and previous representations
     if prev_activations is not None:
@@ -336,6 +340,111 @@ def compute_fourier_metrics(model, all_X, p: int) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Activation intrinsic dimensionality
+# ---------------------------------------------------------------------------
+
+def compute_activation_idim(model, all_X, threshold=0.9) -> dict:
+    """
+    PCA-based intrinsic dimensionality of hidden activations over the full p² input grid.
+    Reports the number of principal components needed to explain `threshold` of variance.
+    """
+    model.eval()
+    with torch.no_grad():
+        model(all_X, capture=True)
+
+    metrics = {}
+    for name, acts in model.activations.items():
+        acts_c = acts.float() - acts.float().mean(0, keepdim=True)
+        try:
+            S = torch.linalg.svdvals(acts_c)
+            total_var = S.pow(2).sum()
+            if total_var < 1e-12:
+                metrics[f'idim_{name}'] = 0
+                continue
+            cumvar = S.pow(2).cumsum(0) / total_var
+            metrics[f'idim_{name}'] = int((cumvar < threshold).sum().item()) + 1
+        except Exception:
+            metrics[f'idim_{name}'] = float('nan')
+    return metrics
+
+
+# ---------------------------------------------------------------------------
+# Output logit Fourier structure
+# ---------------------------------------------------------------------------
+
+def compute_logit_fourier_metrics(model, all_X, p: int) -> dict:
+    """
+    Apply 2D DFT to the model's logit outputs over the full p×p input grid.
+    Measures whether the output space itself becomes Fourier-structured.
+    """
+    fourier_basis = make_fourier_basis(p).to(all_X.device)
+    model.eval()
+    with torch.no_grad():
+        logits = model(all_X)           # [p², p]
+    logit_grid = logits.view(p, p, p)   # [x, y, class]
+
+    # 2D DFT over (x, y) for each output class
+    fourier = torch.einsum('xyc,fx,gy->fgc', logit_grid, fourier_basis, fourier_basis)
+    power   = fourier.pow(2)            # [p, p, p_classes]
+
+    fracs, entropies = [], []
+    for ci in range(p):
+        np_power = power[:, :, ci]
+        total = np_power.sum().item()
+        if total < 1e-12:
+            fracs.append(0.0); entropies.append(0.0)
+            continue
+        best_frac = 0.0
+        for k in range(1, p // 2):
+            idx = [0, 2 * k - 1, 2 * k]
+            sub = np_power[[[i] * 3 for i in idx], [idx] * 3]
+            frac = sub.sum().item() / total
+            if frac > best_frac:
+                best_frac = frac
+        fracs.append(best_frac)
+        p_dist = (np_power.flatten() / total).clamp(min=1e-12)
+        entropies.append(-(p_dist * p_dist.log()).sum().item())
+
+    return {
+        'logit_fourier_frac':    sum(fracs)     / p,
+        'logit_fourier_entropy': sum(entropies) / p,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Group axiom satisfaction
+# ---------------------------------------------------------------------------
+
+def compute_group_metrics(model, all_X, p: int) -> dict:
+    """
+    Check whether the model's prediction table forms a valid group.
+    Computes associativity satisfaction rate and whether an identity element exists.
+    """
+    model.eval()
+    with torch.no_grad():
+        logits = model(all_X)           # [p², p]
+    T = logits.argmax(dim=1).view(p, p) # T[x, y] = predicted (x op y)
+
+    # Associativity: T[T[a,b], c] == T[a, T[b,c]] for all (a, b, c)
+    # T[T[a,b], c] — flatten T, index rows by T's values, reshape
+    TTab_c  = T[T.flatten()].view(p, p, p)   # [a, b, c]
+    Ta_Tbc  = T[:, T]                         # [a, b, c] = T[a, T[b,c]]
+    assoc   = (TTab_c == Ta_Tbc).float().mean().item()
+
+    # Identity: exists e s.t. T[x, e] == x and T[e, x] == x for all x
+    x = torch.arange(p, device=T.device)
+    has_identity = any(
+        (T[:, e] == x).all() and (T[e, :] == x).all()
+        for e in range(p)
+    )
+
+    return {
+        'group_assoc_frac':    assoc,
+        'group_has_identity':  float(has_identity),
+    }
+
+
+# ---------------------------------------------------------------------------
 # Phase detection
 # ---------------------------------------------------------------------------
 
@@ -390,5 +499,8 @@ def compute_all_metrics(model, train_X, train_y, test_X, test_y,
 
     if compute_fourier:
         metrics.update(compute_fourier_metrics(model, all_X, p))
+        metrics.update(compute_logit_fourier_metrics(model, all_X, p))
+        metrics.update(compute_activation_idim(model, all_X))
+        metrics.update(compute_group_metrics(model, all_X, p))
 
     return metrics, curr_acts
