@@ -109,6 +109,24 @@ def snapshot_params(model) -> Dict[str, torch.Tensor]:
             for name, p in model.named_parameters() if p.requires_grad}
 
 
+def snapshot_grads(model) -> Optional[torch.Tensor]:
+    """Concatenate all current gradients into a single flat vector (CPU)."""
+    parts = [p.grad.detach().cpu().flatten()
+             for p in model.parameters()
+             if p.requires_grad and p.grad is not None]
+    return torch.cat(parts) if parts else None
+
+
+def compute_gradient_alignment(curr_grads: Optional[torch.Tensor],
+                                prev_grads: Optional[torch.Tensor]) -> dict:
+    """Cosine similarity between consecutive gradient vectors."""
+    if curr_grads is None or prev_grads is None:
+        return {}
+    cos = F.cosine_similarity(curr_grads.unsqueeze(0),
+                               prev_grads.unsqueeze(0)).item()
+    return {'grad_alignment': cos}
+
+
 # ---------------------------------------------------------------------------
 # Neuron structure
 # ---------------------------------------------------------------------------

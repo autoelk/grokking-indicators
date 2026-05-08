@@ -19,6 +19,7 @@ from model import GrokMLP, GrokTransformer
 from metrics import (
     compute_all_metrics, detect_phase,
     snapshot_params, compute_weight_metrics,
+    snapshot_grads, compute_gradient_alignment,
 )
 
 
@@ -93,6 +94,7 @@ def main():
     theta_0    = snapshot_params(model)   # initial parameters, never updated
     prev_theta = snapshot_params(model)   # updated each log step
     prev_activations = None               # for CKA
+    prev_grads = None                     # for gradient alignment
 
     # --- Logging ---
     history = []
@@ -117,6 +119,9 @@ def main():
                     safe = name.replace('.', '_')
                     grad_snapshot[f'grad_norm_{safe}'] = (
                         param.grad.detach().pow(2).sum().sqrt().item())
+            curr_grads     = snapshot_grads(model)
+            grad_alignment = compute_gradient_alignment(curr_grads, prev_grads)
+            prev_grads     = curr_grads
             # Snapshot θ before step for update/weight ratio
             pre_step_theta = snapshot_params(model)
 
@@ -140,6 +145,7 @@ def main():
 
             row = {'epoch': epoch}
             row.update(grad_snapshot)
+            row.update(grad_alignment)
             row.update(row_metrics)
             row['phase'] = detect_phase(history)
 
