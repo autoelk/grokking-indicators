@@ -6,6 +6,7 @@ OPERATIONS = {
     'subtract': lambda x, y, p: (x - y) % p,
     'multiply': lambda x, y, p: (x * y) % p,
     'x2xyy2':  lambda x, y, p: (x**2 + x*y + y**2) % p,
+    'x3xy2y' : lambda x, y, p: (x**3 + (x*y)**2 + y) % p,
 }
 
 

@@ -1,0 +1,24 @@
+{
+  "p": 113,
+  "operation": "x3xy2y",
+  "train_frac": 0.3,
+  "model_type": "mlp",
+  "hidden_sizes": [
+    200,
+    200
+  ],
+  "n_epochs": 50000,
+  "lr": 0.001,
+  "weight_decay": 1.0,
+  "beta1": 0.9,
+  "beta2": 0.98,
+  "log_every": 200,
+  "fourier_every": 2000,
+  "sharp_every": 5000,
+  "warmup_steps": 10,
+  "seed": 42,
+  "device": "cpu",
+  "out_dir": "results/x3xy2y_mlp",
+  "n_train": 3830,
+  "n_test": 8939
+}
