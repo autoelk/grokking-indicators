@@ -71,13 +71,16 @@ def compute_weight_metrics(model, theta_0: Optional[Dict] = None,
     Both should be {name: tensor} dicts of detached CPU tensors.
     """
     metrics = {}
+    total_sq = 0.0
     for name, param in model.named_parameters():
         if not param.requires_grad:
             continue
         safe = name.replace('.', '_')
         W = param.detach()
 
-        metrics[f'l2_{safe}']  = W.pow(2).sum().sqrt().item()
+        param_sq = W.pow(2).sum().item()
+        total_sq += param_sq
+        metrics[f'l2_{safe}']  = param_sq ** 0.5
 
         if param.grad is not None:
             metrics[f'grad_norm_{safe}'] = param.grad.detach().pow(2).sum().sqrt().item()
@@ -100,6 +103,7 @@ def compute_weight_metrics(model, theta_0: Optional[Dict] = None,
                 delta.pow(2).sum().sqrt().item() / max(w_norm, 1e-12)
             )
 
+    metrics['total_weight_sq'] = total_sq
     return metrics
 
 
