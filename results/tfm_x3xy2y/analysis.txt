@@ -1,0 +1,3 @@
+Loading results from: results/tfm_x3xy2y
+Plot saved to results/tfm_x3xy2y/plot.png
+Grokking (test_acc >= 0.95) did not occur -- skipping correlation analysis.

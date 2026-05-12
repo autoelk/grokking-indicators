@@ -1,0 +1,34 @@
+C:\Projects\Programming\6700\grok\.venv\Lib\site-packages\numpy\lib\_function_base_impl.py:3023: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+C:\Projects\Programming\6700\grok\.venv\Lib\site-packages\numpy\lib\_function_base_impl.py:3024: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[None, :]
+Loading results from: results/mlp_multiply
+Plot saved to results/mlp_multiply/plot.png
+
+Grokking onset (test_acc >= 0.95): epoch 17100
+Total epochs logged: 193
+
+Top metrics correlated with test accuracy:
+                                  metric  corr_with_test_acc  frac_change_before_grok
+    fourier_mean_frac_explained_hidden_1             -0.9685                   0.7673
+                eff_rank_layers_0_weight             -0.9628                   0.6556
+                        group_assoc_frac              0.9479                   0.7996
+           fourier_mean_entropy_hidden_1              0.9411                   0.8908
+   weight_fourier_frac_x_layers_0_weight             -0.9343                   0.8021
+weight_fourier_frac_mean_layers_0_weight             -0.9340                   0.7351
+   weight_fourier_frac_y_layers_0_weight             -0.9254                   0.6383
+                           idim_hidden_1             -0.9222                   0.8667
+    fourier_mean_frac_explained_hidden_0             -0.9072                   0.5491
+        condition_number_layers_2_weight              0.8960                   0.9567
+                         test_confidence              0.8861                   0.6684
+                eff_rank_layers_2_weight             -0.8576                   0.8875
+        condition_number_layers_0_weight              0.8293                   1.9393
+                               test_loss             -0.8245                   0.9686
+                   logit_fourier_entropy              0.8242                   0.9775
+                eff_rank_layers_1_weight             -0.8027                   0.9042
+                           idim_hidden_0             -0.7772                      NaN
+          sign_stability_layers_2_weight             -0.7699                   0.9637
+        condition_number_layers_1_weight              0.7210                   0.2477
+                         total_weight_sq             -0.7034                   1.1025
+
+Full analysis saved to results\mlp_multiply\correlation_analysis.csv

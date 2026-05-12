@@ -1,0 +1,30 @@
+Loading results from: results/tfm_add
+Plot saved to results/tfm_add/plot.png
+
+Grokking onset (test_acc >= 0.95): epoch 14900
+Total epochs logged: 156
+
+Top metrics correlated with test accuracy:
+                         metric  corr_with_test_acc  frac_change_before_grok
+fourier_mean_frac_explained_mlp              0.9436                   0.4709
+             group_has_identity              0.8614                   0.0000
+                test_confidence              0.7533                   0.4362
+                       idim_mlp             -0.7512                  -0.0870
+       fourier_mean_entropy_mlp             -0.7177                  -0.6975
+                  l2_W_K_weight             -0.7099                   0.8539
+  sign_stability_unembed_weight             -0.6799                   1.0054
+        eff_rank_unembed_weight             -0.6503                   0.9328
+                      test_loss             -0.6357                   0.9732
+               group_assoc_frac              0.6216                 237.5131
+condition_number_unembed_weight              0.6105                   1.2216
+          eff_rank_W_out_weight             -0.5906                   0.9060
+            eff_rank_W_O_weight             -0.5481                   0.8504
+    condition_number_W_K_weight              0.5207                  10.1358
+      sign_stability_W_O_weight             -0.5043                   0.9493
+    sign_stability_embed_weight             -0.5024                   0.9379
+            eff_rank_W_V_weight             -0.4768                   0.8905
+                l2_W_out_weight             -0.4613                   1.1323
+           eff_rank_W_in_weight             -0.4567                   0.8949
+     sign_stability_W_in_weight             -0.4209                   0.9777
+
+Full analysis saved to results\tfm_add\correlation_analysis.csv

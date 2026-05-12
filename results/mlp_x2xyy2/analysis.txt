@@ -1,0 +1,3 @@
+Loading results from: results/mlp_x2xyy2
+Plot saved to results/mlp_x2xyy2/plot.png
+Grokking (test_acc >= 0.95) did not occur -- skipping correlation analysis.
