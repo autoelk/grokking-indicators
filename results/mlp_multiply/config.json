@@ -1,13 +1,13 @@
 {
   "p": 113,
   "operation": "multiply",
-  "train_frac": 0.3,
+  "train_frac": 0.5,
   "model_type": "mlp",
   "hidden_sizes": [
     200,
     200
   ],
-  "n_epochs": 50000,
+  "n_epochs": 25000,
   "lr": 0.001,
   "weight_decay": 1.0,
   "beta1": 0.9,
@@ -19,6 +19,6 @@
   "seed": 42,
   "device": "cuda",
   "out_dir": "results/mlp_multiply",
-  "n_train": 3830,
-  "n_test": 8939
+  "n_train": 6384,
+  "n_test": 6385
 }

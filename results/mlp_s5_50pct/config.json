@@ -1,13 +1,13 @@
 {
-  "p": 113,
-  "operation": "x2xyy2",
+  "p": 120,
+  "operation": "s5",
   "train_frac": 0.5,
   "model_type": "mlp",
   "hidden_sizes": [
     200,
     200
   ],
-  "n_epochs": 25000,
+  "n_epochs": 100000,
   "lr": 0.001,
   "weight_decay": 1.0,
   "beta1": 0.9,
@@ -18,7 +18,7 @@
   "warmup_steps": 10,
   "seed": 42,
   "device": "cuda",
-  "out_dir": "results/mlp_x2xyy2",
-  "n_train": 6384,
-  "n_test": 6385
+  "out_dir": "results/mlp_s5_50pct",
+  "n_train": 7200,
+  "n_test": 7200
 }

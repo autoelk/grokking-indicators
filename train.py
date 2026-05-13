@@ -27,7 +27,7 @@ def parse_args():
     p = argparse.ArgumentParser(description='Grokking investigation trainer')
     p.add_argument('--p',             type=int,   default=113,     help='Modulus')
     p.add_argument('--operation',     type=str,   default='add',
-                   choices=['add', 'subtract', 'multiply', 'x2xyy2', 'x3xy2y'])
+                   choices=['add', 'subtract', 'multiply', 'x2xyy2', 'x3xy2y', 's5'])
     p.add_argument('--train_frac',    type=float, default=0.3,     help='Fraction of data for training')
     p.add_argument('--model_type',    type=str,   default='mlp',   choices=['mlp', 'transformer'])
     p.add_argument('--hidden_sizes',  type=int,   nargs='+',       default=[200, 200])
@@ -49,6 +49,8 @@ def parse_args():
 
 def main():
     args = parse_args()
+    if args.operation == 's5':
+        args.p = 120  # |S_5| = 5! = 120; ignores any --p flag
     torch.manual_seed(args.seed)
     device = torch.device(args.device)
 

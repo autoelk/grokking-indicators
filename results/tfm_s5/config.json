@@ -1,8 +1,8 @@
 {
-  "p": 113,
-  "operation": "x2xyy2",
+  "p": 120,
+  "operation": "s5",
   "train_frac": 0.5,
-  "model_type": "mlp",
+  "model_type": "transformer",
   "hidden_sizes": [
     200,
     200
@@ -18,7 +18,7 @@
   "warmup_steps": 10,
   "seed": 42,
   "device": "cuda",
-  "out_dir": "results/mlp_x2xyy2",
-  "n_train": 6384,
-  "n_test": 6385
+  "out_dir": "results/tfm_s5",
+  "n_train": 7200,
+  "n_test": 7200
 }

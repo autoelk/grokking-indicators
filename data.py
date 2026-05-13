@@ -1,3 +1,4 @@
+import itertools
 import torch
 from torch.utils.data import TensorDataset
 
@@ -9,8 +10,45 @@ OPERATIONS = {
     'x3xy2y' : lambda x, y, p: (x**3 + (x*y)**2 + y) % p,
 }
 
+S5_SIZE = 120  # |S_5| = 5! = 120
+
+_s5_table = None  # module-level cache
+
+
+def _build_s5_table():
+    """120×120 composition table for S_5. (pi ∘ pj)[k] = pi[pj[k]]."""
+    perms = list(itertools.permutations(range(5)))
+    idx = {p: i for i, p in enumerate(perms)}
+    table = [[0] * 120 for _ in range(120)]
+    for i, pi in enumerate(perms):
+        for j, pj in enumerate(perms):
+            table[i][j] = idx[tuple(pi[pj[k]] for k in range(5))]
+    return table
+
+
+def _get_s5_table():
+    global _s5_table
+    if _s5_table is None:
+        _s5_table = _build_s5_table()
+    return _s5_table
+
+
+def _build_full_s5():
+    table = _get_s5_table()
+    n = S5_SIZE
+    inputs, labels = [], []
+    for i in range(n):
+        for j in range(n):
+            x_oh = torch.zeros(n); x_oh[i] = 1.0
+            y_oh = torch.zeros(n); y_oh[j] = 1.0
+            inputs.append(torch.cat([x_oh, y_oh]))
+            labels.append(table[i][j])
+    return torch.stack(inputs), torch.tensor(labels, dtype=torch.long)
+
 
 def _build_full(p, operation):
+    if operation == 's5':
+        return _build_full_s5()
     op_fn = OPERATIONS[operation]
     inputs, labels = [], []
     for x in range(p):
@@ -23,19 +61,25 @@ def _build_full(p, operation):
 
 
 def make_full_dataset(p=113, operation='add'):
-    """Full p^2 dataset in canonical (x,y) order. Used for Fourier metric computation."""
+    """Full n^2 dataset in canonical (x,y) order. Used for Fourier metric computation."""
     inputs, labels = _build_full(p, operation)
     return inputs, labels
 
 
 def make_token_dataset(p=113, operation='add', train_fraction=0.3, seed=42):
-    """Integer token format [x, y, p] for the Transformer model."""
-    op_fn = OPERATIONS[operation]
-    tokens, labels = [], []
-    for x in range(p):
-        for y in range(p):
-            tokens.append(torch.tensor([x, y, p], dtype=torch.long))
-            labels.append(op_fn(x, y, p))
+    """Integer token format [x, y, sep] for the Transformer model."""
+    if operation == 's5':
+        p = S5_SIZE
+        table = _get_s5_table()
+        tokens = [torch.tensor([i, j, p], dtype=torch.long)
+                  for i in range(p) for j in range(p)]
+        labels = [table[i][j] for i in range(p) for j in range(p)]
+    else:
+        op_fn = OPERATIONS[operation]
+        tokens = [torch.tensor([x, y, p], dtype=torch.long)
+                  for x in range(p) for y in range(p)]
+        labels = [op_fn(x, y, p) for x in range(p) for y in range(p)]
+
     tokens = torch.stack(tokens)
     labels = torch.tensor(labels, dtype=torch.long)
 

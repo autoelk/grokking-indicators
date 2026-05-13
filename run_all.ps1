@@ -8,10 +8,12 @@ $runs = @(
     @{op="x3xy2y";   model="mlp";         out="results/mlp_x3xy2y"},
     @{op="multiply"; model="mlp";         out="results/mlp_multiply"},
     @{op="x2xyy2";   model="mlp";         out="results/mlp_x2xyy2"},
+    @{op="s5";       model="mlp";         out="results/mlp_s5"},
     @{op="add";      model="transformer"; out="results/tfm_add"},
     @{op="x3xy2y";   model="transformer"; out="results/tfm_x3xy2y"},
     @{op="multiply"; model="transformer"; out="results/tfm_multiply"},
-    @{op="x2xyy2";   model="transformer"; out="results/tfm_x2xyy2"}
+    @{op="x2xyy2";   model="transformer"; out="results/tfm_x2xyy2"},
+    @{op="s5";       model="transformer"; out="results/tfm_s5"}
 )
 
 foreach ($r in $runs) {

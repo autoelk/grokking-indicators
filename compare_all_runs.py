@@ -14,10 +14,12 @@ RUNS = [
     {'label': 'MLP multiply', 'path': 'results/mlp_multiply/metrics.csv', 'color': '#1a9850', 'linestyle': '-',  'grokked': True},
     {'label': 'MLP x3xy2y',   'path': 'results/mlp_x3xy2y/metrics.csv',   'color': '#d6604d', 'linestyle': '-',  'grokked': False},
     {'label': 'MLP x2xyy2',   'path': 'results/mlp_x2xyy2/metrics.csv',   'color': '#e08214', 'linestyle': '-',  'grokked': False},
+    {'label': 'MLP s5',       'path': 'results/mlp_s5/metrics.csv',       'color': '#762a83', 'linestyle': '-',  'grokked': True},
     {'label': 'TFM add',      'path': 'results/tfm_add/metrics.csv',      'color': '#2166ac', 'linestyle': '--', 'grokked': True},
     {'label': 'TFM multiply', 'path': 'results/tfm_multiply/metrics.csv', 'color': '#1a9850', 'linestyle': '--', 'grokked': True},
     {'label': 'TFM x3xy2y',   'path': 'results/tfm_x3xy2y/metrics.csv',   'color': '#d6604d', 'linestyle': '--', 'grokked': False},
     {'label': 'TFM x2xyy2',   'path': 'results/tfm_x2xyy2/metrics.csv',   'color': '#e08214', 'linestyle': '--', 'grokked': False},
+    {'label': 'TFM s5',       'path': 'results/tfm_s5/metrics.csv',       'color': '#762a83', 'linestyle': '--', 'grokked': True},
 ]
 
 # (panel title, [col candidates in priority order], y-scale)
@@ -188,6 +190,7 @@ handles = [
     mlines.Line2D([], [], color='#1a9850', linewidth=2, label='multiply'),
     mlines.Line2D([], [], color='#d6604d', linewidth=2, label='x3xy2y'),
     mlines.Line2D([], [], color='#e08214', linewidth=2, label='x2xyy2'),
+    mlines.Line2D([], [], color='#762a83', linewidth=2, label='S5 (non-abelian)'),
     mlines.Line2D([], [], color='gray', linestyle='-',  linewidth=2, label='MLP (solid)'),
     mlines.Line2D([], [], color='gray', linestyle='--', linewidth=2, label='Transformer (dashed)'),
     mlines.Line2D([], [], color='gray', linestyle=':',  linewidth=1.2, label='Grokking onset'),
